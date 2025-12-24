@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                style="?android:attr/buttonBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_left"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="48dp"
+                    android:layout_marginTop="32dp"
+                    android:contentDescription="@string/turn_left_desc"
+                    app:icon="@drawable/fast_rewind_24px"
+                    android:onClick="onBlinkModeChange"
+                    />
+
+                <Button
+                    android:id="@+id/btn_stop"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginStart="24dp"
+                    android:contentDescription="@string/stop_blinking"
+                    app:icon="@drawable/pause_circle_24px"
+                    android:onClick="onBlinkModeChange"
+                    />
+
+                <Button
+                    android:id="@+id/btn_right"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginStart="24dp"
+                    android:contentDescription="@string/turn_right_desc"
+                    app:icon="@drawable/fast_forward_24px"
+                    android:onClick="onBlinkModeChange"
+                    />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="48dp"
+                android:layout_marginTop="12dp"
+                android:text="@string/red_leds_blink_mode"
+                />
+
+            <LinearLayout
+                style="?android:attr/buttonBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_red1"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginTop="12dp"
+                    android:contentDescription="@string/red_blinking_mode_1"
+                    android:onClick="onBlinkModeChange"
+                    app:icon="@drawable/looks_1_24px" />
+
+                <Button
+                    android:id="@+id/btn_red2"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="12dp"
+                    android:contentDescription="@string/red_blinking_mode_2"
+                    android:onClick="onBlinkModeChange"
+                    app:icon="@drawable/looks_2_24px" />
+
+                <Button
+                    android:id="@+id/btn_red3"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="12dp"
+                    android:contentDescription="@string/red_blinking_mode_3"
+                    android:onClick="onBlinkModeChange"
+                    app:icon="@drawable/looks_3_24px" />
+
+                <Button
+                    android:id="@+id/btn_red4"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="12dp"
+                    android:contentDescription="@string/red_blinking_mode_4"
+                    android:onClick="onBlinkModeChange"
+                    app:icon="@drawable/looks_4_24px" />
+
+                <Button
+                    android:id="@+id/btn_red5"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="12dp"
+                    android:contentDescription="@string/red_blinking_mode_5"
+                    android:onClick="onBlinkModeChange"
+                    app:icon="@drawable/looks_5_24px" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="48dp"
+                android:layout_marginTop="12dp"
+                android:text="@string/red_leds_bit_level_control"
+                />
+
+            <LinearLayout
+                style="?android:attr/buttonBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_red1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:onClick="onToggleBit"
+                    tools:ignore="DuplicateSpeakableTextCheck" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_red2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:onClick="onToggleBit"
+                    />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_red3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:onClick="onToggleBit"
+                    />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_red4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:onClick="onToggleBit"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                style="?android:attr/buttonBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_red5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:onClick="onToggleBit"
+                    />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_red6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:onClick="onToggleBit"
+                    />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_red7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:onClick="onToggleBit"
+                    />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_red8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:onClick="onToggleBit"
+                    />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="48dp"
+                android:layout_marginTop="12dp"
+                android:text="@string/orange_leds_bit_level_control"
+                />
+
+            <LinearLayout
+                style="?android:attr/buttonBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_orange1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:onClick="onToggleBit"
+                    />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_orange2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:onClick="onToggleBit"
+                    />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_orange3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:onClick="onToggleBit"
+                    />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_orange4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:onClick="onToggleBit"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                style="?android:attr/buttonBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_orange5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:onClick="onToggleBit"
+                    />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_orange6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:onClick="onToggleBit"
+                    />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_orange7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:onClick="onToggleBit"
+                    />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_orange8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:onClick="onToggleBit"
+                    />
+            </LinearLayout>
+
+        <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+        </LinearLayout>
+
+            <TextView
+                android:id="@+id/label_device_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="24dp"
+                android:layout_gravity="end"
+                android:text="@string/device_address_label" />
+
+        </LinearLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:layout_marginBottom="32dp"
+        android:layout_marginStart="32dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:onClick="onSettings"
+        android:contentDescription="@string/settings"
+        app:srcCompat="@drawable/settings_24px" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
