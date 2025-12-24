@@ -1,0 +1,16 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:key="ble_device_address"
+        android:title="Blinky device address"
+        android:summary="Blinky device address, click to choose"
+        android:inputType="text"
+        android:singleLine="true" />
+
+    <EditTextPreference android:key="ble_name_filter"
+        android:title="Device name filter"
+        android:summary="On show devices with this pattern"
+        android:defaultValue="blinky" />
+
+</PreferenceScreen>
