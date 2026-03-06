@@ -41,4 +41,3 @@ swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-
