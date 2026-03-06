@@ -34,10 +34,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.material.slider.RangeSlider;
 import com.google.common.base.Strings;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -57,10 +60,12 @@ import static android.Manifest.permission.BLUETOOTH_CONNECT;
 import static android.Manifest.permission.BLUETOOTH_SCAN;
 import static android.bluetooth.BluetoothGatt.GATT_SUCCESS;
 import static com.github.rkosegi.blinkycontrol.Constants.LED_BIT_CHAR_UUID;
+import static com.github.rkosegi.blinkycontrol.Constants.LED_DIM_LEVEL_CHAR_UUID;
 import static com.github.rkosegi.blinkycontrol.Constants.LED_MODE_CHAR_UUID;
 import static com.github.rkosegi.blinkycontrol.Constants.LED_SERVICE_UUID;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = MainActivity.class.getSimpleName();
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothGatt bluetoothGatt;
     private List<BluetoothGattService> btServices = List.of();
@@ -68,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     private final BluetoothGattCallback bleCb = new BluetoothGattCallback() {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            Log.i(MainActivity.class.getSimpleName(), "BluetoothGattCallback:onServicesDiscovered(status=" + status + ")");
+            Log.i(TAG, "BluetoothGattCallback:onServicesDiscovered(status=" + status + ")");
             if(status == GATT_SUCCESS) {
                 btServices = gatt.getServices();
             }
@@ -78,12 +83,12 @@ public class MainActivity extends AppCompatActivity {
         @SuppressLint("MissingPermission")
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            Log.i(MainActivity.class.getSimpleName(), "onConnectionStateChange(newState=" + newState + ")");
+            Log.i(TAG, "onConnectionStateChange(newState=" + newState + ")");
             switch (newState) {
                 case BluetoothProfile.STATE_CONNECTED:
-                    Log.i(MainActivity.class.getSimpleName(), "Discovering services");
+                    Log.i(TAG, "Discovering services");
                     if (!gatt.discoverServices()) {
-                        Log.w(MainActivity.class.getSimpleName(), "refreshBluetoothConnection: gatt->discoverServices returned false");
+                        Log.w(TAG, "refreshBluetoothConnection: gatt->discoverServices returned false");
                     }
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
@@ -116,11 +121,50 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btn_red3).setTag(3);
         findViewById(R.id.btn_red4).setTag(4);
         findViewById(R.id.btn_red5).setTag(5);
+        ((RangeSlider)findViewById(R.id.led_dim_level)).addOnChangeListener((slider, value, fromUser) -> trySetDimLevel(value));
 
         enableControls(false);
 
         final SwipeRefreshLayout srl = findViewById(R.id.swipe_refresh);
         srl.setOnRefreshListener(this::onRefresh);
+    }
+
+    private void writeLedChar(@NonNull String action, @NonNull UUID charUuid, @NonNull byte[] val) {
+        doWithLedChar(action, charUuid, new Consumer<>() {
+            @SuppressLint("MissingPermission")
+            @Override
+            public void accept(BluetoothGattCharacteristic btc) {
+                btc.setValue(val);
+                if (!bluetoothGatt.writeCharacteristic(btc)) {
+                    Log.w(TAG,  action + ": bluetoothGatt->writeCharacteristic returned false");
+                }
+            }
+        });
+    }
+
+    private void doWithLedChar(@NonNull String action, @NonNull UUID charUuid, @NonNull Consumer<BluetoothGattCharacteristic> consumer) {
+        if (bluetoothGatt != null) {
+            final Optional<BluetoothGattService> ledSvc = btServices.stream()
+                    .filter(s -> s.getUuid().equals(LED_SERVICE_UUID))
+                    .findFirst();
+            if (ledSvc.isPresent()) {
+                final BluetoothGattCharacteristic bleChar = ledSvc.get().getCharacteristic(charUuid);
+                if (bleChar != null) {
+                    consumer.accept(bleChar);
+                } else {
+                    Log.w(TAG, "LED service does not expose characteristic " + charUuid);
+                }
+            }else {
+                Log.w(TAG, action + ": Advertised services does not include LED service (" +
+                        charUuid + ")");
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void trySetDimLevel(float level) {
+        int levelInt = (int) level;
+        writeLedChar("setDimLevel", LED_DIM_LEVEL_CHAR_UUID, new byte[]{(byte) (levelInt & 0xff)});
     }
 
     private void onRefresh() {
@@ -141,14 +185,15 @@ public class MainActivity extends AppCompatActivity {
                 R.id.switch_orange1, R.id.switch_orange2, R.id.switch_orange3, R.id.switch_orange4,
                 R.id.switch_orange5, R.id.switch_orange6, R.id.switch_orange7, R.id.switch_orange8,
                 R.id.switch_red1, R.id.switch_red2, R.id.switch_red3, R.id.switch_red4,
-                R.id.switch_red5, R.id.switch_red6, R.id.switch_red7, R.id.switch_red8
+                R.id.switch_red5, R.id.switch_red6, R.id.switch_red7, R.id.switch_red8,
+                R.id.led_dim_level
         ).map((Function<Integer, View>) this::findViewById).forEach(view -> view.setEnabled(enable));
     }
 
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        Log.i(MainActivity.class.getSimpleName(), "onRequestPermissionsResult(rc=" +
+        Log.i(TAG, "onRequestPermissionsResult(rc=" +
                 requestCode + ", gr=" + List.of(grantResults));
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
@@ -170,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
         final BluetoothManager bluetoothManager = getSystemService(BluetoothManager.class);
         final BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
         if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
-            Log.e(MainActivity.class.getSimpleName(), "bluetooth is not enabled");
+            Log.e(TAG, "bluetooth is not enabled");
             return;
         }
         this.bluetoothAdapter = bluetoothAdapter;
@@ -182,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
         if (bluetoothAdapter != null) {
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             final String bleAddress = prefs.getString("ble_device_address", null);
-            Log.i(MainActivity.class.getSimpleName(), "Device address from preferences : " + bleAddress);
+            Log.i(TAG, "Device address from preferences : " + bleAddress);
             runOnUiThread(() -> ((TextView) findViewById(R.id.label_device_address)).setText(
                     String.format(getString(R.string.device_address_label), bleAddress)));
             if (!Strings.isNullOrEmpty(bleAddress)) {
@@ -190,19 +235,19 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     device = bluetoothAdapter.getRemoteDevice(bleAddress);
                 } catch (IllegalArgumentException e) {
-                    Log.e(MainActivity.class.getSimpleName(), "Invalid device address : " + bleAddress, e);
+                    Log.e(TAG, "Invalid device address : " + bleAddress, e);
                     return;
                 }
                 clearGatt();
                 bluetoothGatt = device.connectGatt(this.getBaseContext(), false, bleCb);
                 if (bluetoothGatt.connect()) {
-                    Log.w(MainActivity.class.getSimpleName(), "refreshBluetoothConnection: bluetoothGatt->connect returned false");
+                    Log.w(TAG, "refreshBluetoothConnection: bluetoothGatt->connect returned false");
                 }
             } else {
-                Log.w(MainActivity.class.getSimpleName(), "Device is not yet configured");
+                Log.w(TAG, "Device is not yet configured");
             }
         } else {
-            Log.w(MainActivity.class.getSimpleName(), "BluetoothAdapter is not available");
+            Log.w(TAG, "BluetoothAdapter is not available");
         }
     }
 
@@ -210,7 +255,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(this, SettingsActivity.class));
     }
 
-    @SuppressLint("MissingPermission")
     public void onToggleBit(View view) {
         int redVal = 0;
         redVal |= (((SwitchCompat) findViewById(R.id.switch_red1)).isChecked() ? 1 : 0);
@@ -232,66 +276,25 @@ public class MainActivity extends AppCompatActivity {
         oraVal |= (((SwitchCompat) findViewById(R.id.switch_orange7)).isChecked() ? 1 : 0) << 6;
         oraVal |= (((SwitchCompat) findViewById(R.id.switch_orange8)).isChecked() ? 1 : 0) << 7;
 
-        Log.i(MainActivity.class.getSimpleName(), "onToggleBit: computed hex values: " +
-                String.format("%02X %02X", oraVal, redVal));
+        Log.i(TAG, "onToggleBit: computed hex values: " + String.format("%02X %02X", oraVal, redVal));
 
-        if (bluetoothGatt != null) {
-            final Optional<BluetoothGattService> ledSvc = btServices.stream()
-                    .filter(s -> s.getUuid().equals(Constants.LED_SERVICE_UUID))
-                    .findFirst();
-            if (ledSvc.isPresent()) {
-                final BluetoothGattCharacteristic ledBitsChar = ledSvc.get().getCharacteristic(LED_BIT_CHAR_UUID);
-                if (ledBitsChar != null) {
-                    final byte[] buff = new byte[2];
-                    buff[0] = (byte) (oraVal & 0xff);
-                    buff[1] = (byte) (redVal & 0xff);
-                    ledBitsChar.setValue(buff);
-                    if (!bluetoothGatt.writeCharacteristic(ledBitsChar)) {
-                        Log.w(MainActivity.class.getSimpleName(), "onToggleBit: bluetoothGatt->writeCharacteristic returned false");
-                    }
-                } else {
-                    Log.w(MainActivity.class.getSimpleName(), "onToggleBit: LED bits characteristic (" +
-                            LED_BIT_CHAR_UUID + ") is not present in LED service (" +
-                            LED_SERVICE_UUID + ")");
-                }
-            } else {
-                Log.w(MainActivity.class.getSimpleName(), "onToggleBit: Advertised services does not include LED service (" +
-                        LED_SERVICE_UUID.toString() + ")");
-            }
-        }
+        final byte[] buff = new byte[2];
+        buff[0] = (byte) (oraVal & 0xff);
+        buff[1] = (byte) (redVal & 0xff);
+        writeLedChar("onToggleBit", LED_BIT_CHAR_UUID, buff);
     }
 
     @SuppressLint("MissingPermission")
     public void onBlinkModeChange(View view) {
         int mode = (int) view.getTag();
-        if (bluetoothGatt != null) {
-            final Optional<BluetoothGattService> ledSvc = btServices.stream()
-                    .filter(s -> s.getUuid().equals(Constants.LED_SERVICE_UUID))
-                    .findFirst();
-            if (ledSvc.isPresent()) {
-                final BluetoothGattCharacteristic ledModeChar = ledSvc.get().getCharacteristic(LED_MODE_CHAR_UUID);
-                if (ledModeChar != null) {
-                    ledModeChar.setValue(new byte[]{(byte) (mode & 0xff)});
-                    if (!bluetoothGatt.writeCharacteristic(ledModeChar)) {
-                        Log.w(MainActivity.class.getSimpleName(), "onBlinkModeChange: bluetoothGatt->writeCharacteristic returned false");
-                    }
-                } else {
-                    Log.w(MainActivity.class.getSimpleName(), "onToggleBit: LED mode characteristic (" +
-                            LED_MODE_CHAR_UUID + ") is not present in LED service (" +
-                            LED_SERVICE_UUID + ")");
-                }
-            } else {
-                Log.w(MainActivity.class.getSimpleName(), "onToggleBit: Advertised services does not include LED service (" +
-                        LED_SERVICE_UUID.toString() + ")");
-            }
-        }
+        writeLedChar("onBlinkModeChange", LED_MODE_CHAR_UUID, new byte[]{(byte) (mode & 0xff)});
     }
 
     @SuppressLint("MissingPermission")
     private void clearGatt() {
         btServices = List.of();
         if (bluetoothGatt != null) {
-            Log.i(MainActivity.class.getSimpleName(), "Closing Gatt");
+            Log.i(TAG, "Closing Gatt");
             bluetoothGatt.disconnect();
             bluetoothGatt.close();
             bluetoothGatt = null;

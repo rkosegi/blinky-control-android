@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
@@ -30,7 +29,7 @@
                     android:layout_width="48dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="48dp"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="12dp"
                     android:contentDescription="@string/turn_left_desc"
                     app:icon="@drawable/fast_rewind_24px"
                     android:onClick="onBlinkModeChange"
@@ -41,7 +40,7 @@
                     style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="48dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="12dp"
                     android:layout_marginStart="24dp"
                     android:contentDescription="@string/stop_blinking"
                     app:icon="@drawable/pause_circle_24px"
@@ -53,7 +52,7 @@
                     style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="48dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="12dp"
                     android:layout_marginStart="24dp"
                     android:contentDescription="@string/turn_right_desc"
                     app:icon="@drawable/fast_forward_24px"
@@ -66,7 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="48dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="2dp"
                 android:text="@string/red_leds_blink_mode"
                 />
 
@@ -82,7 +81,7 @@
                     android:layout_width="48dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="32dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="2dp"
                     android:contentDescription="@string/red_blinking_mode_1"
                     android:onClick="onBlinkModeChange"
                     app:icon="@drawable/looks_1_24px" />
@@ -93,7 +92,7 @@
                     android:layout_width="48dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="2dp"
                     android:contentDescription="@string/red_blinking_mode_2"
                     android:onClick="onBlinkModeChange"
                     app:icon="@drawable/looks_2_24px" />
@@ -104,7 +103,7 @@
                     android:layout_width="48dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="2dp"
                     android:contentDescription="@string/red_blinking_mode_3"
                     android:onClick="onBlinkModeChange"
                     app:icon="@drawable/looks_3_24px" />
@@ -115,7 +114,7 @@
                     android:layout_width="48dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="2dp"
                     android:contentDescription="@string/red_blinking_mode_4"
                     android:onClick="onBlinkModeChange"
                     app:icon="@drawable/looks_4_24px" />
@@ -126,7 +125,7 @@
                     android:layout_width="48dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="2dp"
                     android:contentDescription="@string/red_blinking_mode_5"
                     android:onClick="onBlinkModeChange"
                     app:icon="@drawable/looks_5_24px" />
@@ -137,7 +136,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="48dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="2dp"
                 android:text="@string/red_leds_bit_level_control"
                 />
 
@@ -145,7 +144,7 @@
                 style="?android:attr/buttonBarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="2dp"
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.SwitchCompat
@@ -185,7 +184,7 @@
                 style="?android:attr/buttonBarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="2dp"
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.SwitchCompat
@@ -225,7 +224,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="48dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="2dp"
                 android:text="@string/orange_leds_bit_level_control"
                 />
 
@@ -233,7 +232,7 @@
                 style="?android:attr/buttonBarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="2dp"
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.SwitchCompat
@@ -273,7 +272,7 @@
                 style="?android:attr/buttonBarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="2dp"
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.SwitchCompat
@@ -309,13 +308,21 @@
                     />
             </LinearLayout>
 
-        <LinearLayout
+
+            <LinearLayout
             style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:orientation="horizontal">
 
+            <com.google.android.material.slider.RangeSlider
+                android:id="@+id/led_dim_level"
+                android:valueFrom="0.0"
+                android:valueTo="100.0"
+                android:stepSize="10.0"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"/>
         </LinearLayout>
 
             <TextView

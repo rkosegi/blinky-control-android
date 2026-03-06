@@ -29,4 +29,6 @@ public final class Constants {
     static final UUID LED_BIT_CHAR_UUID = UUID.fromString("1e0b46a6-7f06-4fc6-a66e-a054b158828d");
     // blink mode characteristic
     static final UUID LED_MODE_CHAR_UUID = UUID.fromString("d5dc531e-0c9a-4cd9-a696-4bcb8c5be548");
+    // dom level characteristic
+    static final UUID LED_DIM_LEVEL_CHAR_UUID = UUID.fromString("d51f3202-4901-4624-a426-90b3dc87c0f2");
 }
