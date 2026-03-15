@@ -23,6 +23,24 @@ public final class Constants {
     private  Constants() {}
     static final String PREF_KEY_DEV_ADDR = "ble_device_address";
 
+    // battery service
+    static final UUID BATTERY_SERVICE_UUID = UUID.fromString("0000180F-0000–1000–8000–00805f9b34fb");
+
+    // battery level in percent
+    static final UUID BATTERY_LEVEL_CHAR_UUID = UUID.fromString("00002A19–0000–1000–8000–00805f9b34fb");
+
+    // battery voltage in mV
+    static final UUID BATTERY_VOLTAGE_CHAR_UUID = UUID.fromString("00002B18–0000–1000–8000–00805f9b34fb");
+
+    // device info service
+    static final UUID DEVICE_INFO_SERVICE_UUID = UUID.fromString("0000180a-0000-1000-8000-00805f9b34fb");
+
+    // device info - FW revision characteristic
+    static final UUID DI_FW_REV_CHAR_UUID = UUID.fromString("00002A26-0000-1000-8000-00805f9b34fb");
+
+    // device info - manufacturer name characteristic
+    static final UUID DI_MF_NAME_CHAR_UUID = UUID.fromString("00002A29-0000-1000-8000-00805f9b34fb");
+
     // LED service
     static final UUID LED_SERVICE_UUID =  UUID.fromString("27f65506-2524-4df3-803a-5f74e5a32ada");
     // bit-mask characteristic

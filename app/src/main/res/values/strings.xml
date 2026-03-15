@@ -12,21 +12,9 @@
     <string name="red_leds_bit_level_control">Red LEDs - bit level control</string>
     <string name="orange_leds_bit_level_control">Orange LEDS - bit level control</string>
     <string name="title_activity_settings">SettingsActivity</string>
-
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
-
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
-
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="red_leds_blink_mode">Red LEDs - blink mode</string>
     <string name="device_address_label">Device address %s</string>
+    <string name="device_info">Device info</string>
+    <string name="label_battery_level">Battery level</string>
+    <string name="label_battery_voltage">Battery voltage</string>
 </resources>

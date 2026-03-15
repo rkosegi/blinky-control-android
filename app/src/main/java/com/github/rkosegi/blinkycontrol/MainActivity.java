@@ -37,6 +37,7 @@ import android.widget.TextView;
 import com.google.android.material.slider.RangeSlider;
 import com.google.common.base.Strings;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -59,6 +60,12 @@ import static android.Manifest.permission.BLUETOOTH;
 import static android.Manifest.permission.BLUETOOTH_CONNECT;
 import static android.Manifest.permission.BLUETOOTH_SCAN;
 import static android.bluetooth.BluetoothGatt.GATT_SUCCESS;
+import static com.github.rkosegi.blinkycontrol.Constants.BATTERY_LEVEL_CHAR_UUID;
+import static com.github.rkosegi.blinkycontrol.Constants.BATTERY_SERVICE_UUID;
+import static com.github.rkosegi.blinkycontrol.Constants.BATTERY_VOLTAGE_CHAR_UUID;
+import static com.github.rkosegi.blinkycontrol.Constants.DEVICE_INFO_SERVICE_UUID;
+import static com.github.rkosegi.blinkycontrol.Constants.DI_FW_REV_CHAR_UUID;
+import static com.github.rkosegi.blinkycontrol.Constants.DI_MF_NAME_CHAR_UUID;
 import static com.github.rkosegi.blinkycontrol.Constants.LED_BIT_CHAR_UUID;
 import static com.github.rkosegi.blinkycontrol.Constants.LED_DIM_LEVEL_CHAR_UUID;
 import static com.github.rkosegi.blinkycontrol.Constants.LED_MODE_CHAR_UUID;
@@ -68,19 +75,54 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothGatt bluetoothGatt;
+    private final DeviceInfoDto di = new DeviceInfoDto();
     private List<BluetoothGattService> btServices = List.of();
 
+    @SuppressLint("MissingPermission")
     private final BluetoothGattCallback bleCb = new BluetoothGattCallback() {
+        @Override
+        public void onCharacteristicRead(@NonNull BluetoothGatt gatt, @NonNull BluetoothGattCharacteristic characteristic,
+                                         @NonNull byte[] value, int status) {
+            if (status == GATT_SUCCESS) {
+                final byte[] data = characteristic.getValue();
+                final UUID svcUuid = characteristic.getService().getUuid();
+                if (svcUuid.equals(DEVICE_INFO_SERVICE_UUID)){
+                    if (characteristic.getUuid().equals(DI_FW_REV_CHAR_UUID)) {
+                        di.setFwRevision(new String(data, StandardCharsets.US_ASCII));
+                    }
+                    if (characteristic.getUuid().equals(DI_MF_NAME_CHAR_UUID)) {
+                        di.setManufacturerName(new String(data, StandardCharsets.US_ASCII));
+                    }
+                }
+                if (svcUuid.equals(BATTERY_SERVICE_UUID)) {
+                    if (characteristic.getUuid().equals(BATTERY_VOLTAGE_CHAR_UUID)) {
+                        di.setBatteryVoltage((data[1] & 0xff) | (data[0] & 0xff) << 8);
+                    }
+                    if (characteristic.getUuid().equals(BATTERY_LEVEL_CHAR_UUID)) {
+                        di.setBatteryLevel(data[0] & 0xff);
+                    }
+                }
+            }
+            super.onCharacteristicRead(gatt, characteristic, value, status);
+        }
+
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             Log.i(TAG, "BluetoothGattCallback:onServicesDiscovered(status=" + status + ")");
             if(status == GATT_SUCCESS) {
                 btServices = gatt.getServices();
+                doWithService(BATTERY_SERVICE_UUID, battSvc -> {
+                    doWithChar("getBatteryInfo", battSvc, BATTERY_LEVEL_CHAR_UUID, gatt::readCharacteristic);
+                    doWithChar("getBatteryInfo", battSvc, BATTERY_VOLTAGE_CHAR_UUID, gatt::readCharacteristic);
+                });
+                doWithService(DEVICE_INFO_SERVICE_UUID, svc -> {
+                    doWithChar("getDeviceInfo", svc, DI_FW_REV_CHAR_UUID, gatt::readCharacteristic);
+                    doWithChar("getDeviceInfo", svc, DI_MF_NAME_CHAR_UUID, gatt::readCharacteristic);
+                });
             }
             super.onServicesDiscovered(gatt, status);
         }
 
-        @SuppressLint("MissingPermission")
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             Log.i(TAG, "onConnectionStateChange(newState=" + newState + ")");
@@ -142,23 +184,32 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void doWithLedChar(@NonNull String action, @NonNull UUID charUuid, @NonNull Consumer<BluetoothGattCharacteristic> consumer) {
+    private void doWithService(@NonNull UUID uuid, @NonNull Consumer<BluetoothGattService> consumer) {
         if (bluetoothGatt != null) {
-            final Optional<BluetoothGattService> ledSvc = btServices.stream()
-                    .filter(s -> s.getUuid().equals(LED_SERVICE_UUID))
+            final Optional<BluetoothGattService> svc = btServices.stream()
+                    .filter(s -> s.getUuid().equals(uuid))
                     .findFirst();
-            if (ledSvc.isPresent()) {
-                final BluetoothGattCharacteristic bleChar = ledSvc.get().getCharacteristic(charUuid);
-                if (bleChar != null) {
-                    consumer.accept(bleChar);
-                } else {
-                    Log.w(TAG, "LED service does not expose characteristic " + charUuid);
-                }
-            }else {
-                Log.w(TAG, action + ": Advertised services does not include LED service (" +
-                        charUuid + ")");
+            if (svc.isPresent()) {
+                consumer.accept(svc.get());
+            } else {
+                Log.w(TAG, "BLE: advertised services does not include "+ uuid);
             }
         }
+    }
+
+    private void doWithChar(@NonNull String action, @NonNull BluetoothGattService svc, @NonNull UUID charUuid,
+                            @NonNull Consumer<BluetoothGattCharacteristic> consumer) {
+        final BluetoothGattCharacteristic bleChar = svc.getCharacteristic(charUuid);
+        if (bleChar != null) {
+            consumer.accept(bleChar);
+        } else {
+            Log.w(TAG, action + ": BLE: service does not expose characteristic " + charUuid);
+        }
+    }
+
+    private void doWithLedChar(@NonNull String action, @NonNull UUID charUuid,
+                               @NonNull Consumer<BluetoothGattCharacteristic> consumer) {
+        doWithService(LED_SERVICE_UUID, svc -> doWithChar(action, svc, charUuid, consumer));
     }
 
     @SuppressLint("MissingPermission")
@@ -186,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
                 R.id.switch_orange5, R.id.switch_orange6, R.id.switch_orange7, R.id.switch_orange8,
                 R.id.switch_red1, R.id.switch_red2, R.id.switch_red3, R.id.switch_red4,
                 R.id.switch_red5, R.id.switch_red6, R.id.switch_red7, R.id.switch_red8,
-                R.id.led_dim_level
+                R.id.led_dim_level, R.id.fabInfo
         ).map((Function<Integer, View>) this::findViewById).forEach(view -> view.setEnabled(enable));
     }
 
@@ -288,6 +339,12 @@ public class MainActivity extends AppCompatActivity {
     public void onBlinkModeChange(View view) {
         int mode = (int) view.getTag();
         writeLedChar("onBlinkModeChange", LED_MODE_CHAR_UUID, new byte[]{(byte) (mode & 0xff)});
+    }
+
+    public void onDeviceInfo(View view) {
+        final Intent intent = new Intent(this, DeviceInfoActivity.class);
+        intent.putExtra("device.info", di);
+        startActivity(new Intent(this, DeviceInfoActivity.class));
     }
 
     @SuppressLint("MissingPermission")
